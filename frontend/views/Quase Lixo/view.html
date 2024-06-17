@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados do Banco</title>
+</head>
+<body>
+    <h1>Dados Inseridos no Banco</h1>
+    <div id="data-container">
+        <!-- Aqui serão exibidos os dados do cliente, endereço e compra -->
+    </div>
+
+    <script>
+        // Vamos usar JavaScript para fazer uma requisição ao servidor e obter os dados do cliente, endereço e compra
+        fetch('/view/data')
+            .then(response => response.json())
+            .then(data => {
+                const dataContainer = document.getElementById('data-container');
+                dataContainer.innerHTML = ''; // Limpa qualquer conteúdo pré-existente
+
+                // Exibe os dados do cliente
+                data.clientes.forEach(cliente => {
+                    const clienteDiv = document.createElement('div');
+                    clienteDiv.innerHTML = `<p><strong>Nome:</strong> ${cliente.nome_sobrenome}</p>
+                                     <p><strong>Email:</strong> ${cliente.email}</p>
+                                     <p><strong>Data de Nascimento:</strong> ${cliente.data_nascimento}</p>
+                                     <hr>`; // Adicione mais informações conforme necessário
+                    dataContainer.appendChild(clienteDiv);
+                });
+
+                // Exibe os dados do endereço
+                data.enderecos.forEach(endereco => {
+                    const enderecoDiv = document.createElement('div');
+                    enderecoDiv.innerHTML = `<p><strong>Cliente ID:</strong> ${endereco.id_cliente}</p>
+                                     <p><strong>Número:</strong> ${endereco.numero}</p>
+                                     <p><strong>Bairro:</strong> ${endereco.bairro}</p>
+                                     <p><strong>Cidade:</strong> ${endereco.cidade}</p>
+                                     <p><strong>Estado:</strong> ${endereco.estado}</p>
+                                     <p><strong>CEP:</strong> ${endereco.cep}</p>
+                                     <hr>`; // Adicione mais informações conforme necessário
+                    dataContainer.appendChild(enderecoDiv);
+                });
+
+                // Exibe os dados da compra
+                data.compras.forEach(compra => {
+                    const compraDiv = document.createElement('div');
+                    compraDiv.innerHTML = `<p><strong>Cliente CPF:</strong> ${compra.cpf_cliente}</p>
+                                     <p><strong>Valor Total:</strong> ${compra.valor_total}</p>
+                                     <p><strong>Data da Compra:</strong> ${compra.data_compra}</p>
+                                     <p><strong>Método de Pagamento:</strong> ${compra.metodo_pagamento}</p>
+                                     <p><strong>Status da Compra:</strong> ${compra.status_compra}</p>
+                                     <hr>`; // Adicione mais informações conforme necessário
+                    dataContainer.appendChild(compraDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao obter dados:', error);
+                const dataContainer = document.getElementById('data-container');
+                dataContainer.innerHTML = '<p>Ocorreu um erro ao obter os dados do banco.</p>';
+            });
+    </script>
+</body>
+</html>

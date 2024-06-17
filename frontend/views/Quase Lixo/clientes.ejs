@@ -1,0 +1,4 @@
+app.get('/clientes', (req, res) => {
+    const clientes = ['Cliente 1', 'Cliente 2', 'Cliente 3'];
+    res.render('clientes', { clientes });
+});

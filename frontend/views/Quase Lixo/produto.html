@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos</title>
+    <style>
+        .produto {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .produto img {
+            max-width: 100px;
+            margin-right: 20px;
+        }
+        .detalhes {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <section id="lista-produtos">
+        <h1>Produtos</h1>
+        <div id="produtos"></div>
+    </section>
+
+    <section id="detalhes-produto" class="detalhes">
+        <h2>Detalhes do Produto</h2>
+        <div id="detalhes"></div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Função para mostrar apenas um section por vez
+            function mostrarSection(sectionId) {
+                $('section').each(function() {
+                    if ($(this).attr('id') === sectionId) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            }
+
+            // Função para formatar as informações do produto
+            function formatarDetalhes(produto) {
+                let imagensHtml = '';
+                produto.imagemarray.forEach(imagem => {
+                    imagensHtml += `<img src="${imagem}" alt="${produto.nome}">`;
+                });
+
+                return `
+                    <p>Nome: ${produto.nome}</p>
+                    <p>Valor: R$ ${produto.valor}</p>
+                    <p>ID: ${produto.id}</p>
+                    <p>Código: ${produto.codigo}</p>
+                    <div>${imagensHtml}</div>
+                `;
+            }
+
+            // Fazendo a requisição AJAX para obter os dados dos produtos
+            $.ajax({
+                url: 'http://localhost:3000/api/produtomongo', // Atualize a URL conforme necessário
+                method: 'GET',
+                success: function(response) {
+                    // Se a requisição for bem-sucedida, exibe os produtos na página
+                    if (response && response.length > 0) {
+                        let produtosHtml = '';
+                        response.forEach(produto => {
+                            produtosHtml += `
+                                <div class="produto">
+                                    <img src="${produto.imagemhome}" alt="${produto.nome}">
+                                    <div>
+                                        <h2 data-id="${produto.id}">${produto.nome}</h2>
+                                        <p class="valor-produto" data-id="${produto.id}">R$ ${produto.valor}</p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        $('#produtos').html(produtosHtml);
+
+                        // Evento de clique para exibir os detalhes do produto e ocultar a lista de produtos
+                        $(document).on('click', 'h2', function() {
+                            // Obter o produto clicado
+                            let produtoClicado = response.find(produto => produto.id === $(this).attr('data-id'));
+
+                            // Exibir os detalhes do produto correspondente e ocultar a lista de produtos
+                            $('#detalhes').html(formatarDetalhes(produtoClicado));
+                            mostrarSection('detalhes-produto');
+                        });
+                    } else {
+                        $('#produtos').html('<p>Nenhum produto encontrado.</p>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Em caso de erro na requisição
+                    $('#produtos').html('<p>Erro ao carregar os produtos.</p>');
+                    console.error(error);
+                }
+            });
+
+            // Evento de clique para redirecionar para a página de detalhes do produto
+            $(document).on('click', 'p.valor-produto', function() {
+                // Obter o ID do produto clicado
+                let produtoId = $(this).attr('data-id');
+
+                // Redirecionar para a página produto2.html com o ID do produto como parâmetro
+                window.location.href = `produto2.html?id=${produtoId}`;
+            });
+        });
+    </script>
+</body>
+</html>

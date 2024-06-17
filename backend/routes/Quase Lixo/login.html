@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm">
+        <label for="nomeUsuario">Nome de Usuário:</label>
+        <input type="text" id="nomeUsuario" name="nome_usuario" required><br><br>
+    
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha" required><br><br>
+    
+        <button type="submit">Login</button>
+    </form>
+
+    <div id="userData"></div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const responseData = await fetch('/login', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.text());
+
+            alert(responseData); // Exibe a mensagem de resposta
+
+            // Após o login bem-sucedido, exibe os dados do usuário
+            const userDataResponse = await fetch('/user');
+            const userData = await userDataResponse.json();
+
+            const userDataDiv = document.getElementById('userData');
+            userDataDiv.innerHTML = `
+                <h2>Dados do Usuário</h2>
+                <p>Nome de Usuário: ${userData.nome_usuario}</p>
+                <p>Senha: ${userData.senha}</p>
+            `;
+        });
+    </script>
+</body>
+</html>

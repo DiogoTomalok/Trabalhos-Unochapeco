@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <label for="cpf">CPF:</label>
+    <input type="text" id="cpf" name="cpf">
+    <label for="senha">Senha:</label>
+    <input type="password" id="senha" name="senha">
+    <button type="submit">Login</button>
+  </form>
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const cpf = document.getElementById('cpf').value;
+      const senha = document.getElementById('senha').value;
+      try {
+        const response = await fetch('/api/buscarmongo/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ cpf, senha })
+        });
+        if (response.status === 404) {
+          document.getElementById('result').innerText = 'Usuário não encontrado';
+        } else if (response.status === 401) {
+          document.getElementById('result').innerText = 'Senha incorreta';
+        } else {
+          const userData = await response.json();
+          document.getElementById('result').innerText = 'Login bem-sucedido';
+          displayUserData(userData);
+        }
+      } catch (err) {
+        document.getElementById('result').innerText = 'Erro ao fazer login';
+      }
+    });
+
+    function displayUserData(user) {
+      const userInfo = document.createElement('div');
+      userInfo.innerHTML = `
+        <h2>Dados do Usuário</h2>
+        <p><strong>Nome:</strong> ${user.nome_usuario}</p>
+        <p><strong>CPF:</strong> ${user.cpf_cliente}</p>
+        <p><strong>Valor:</strong> ${user.valor_usuario}</p>
+        <!-- Adicione mais campos conforme necessário -->
+      `;
+      document.body.appendChild(userInfo);
+    }
+  </script>
+</body>
+</html>

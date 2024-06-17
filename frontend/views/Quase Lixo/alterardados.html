@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alterar Dados por CPF</title>
+</head>
+<body>
+    <h1>Alterar Dados por CPF</h1>
+    <form id="formBuscarCPF">
+        <label for="inputCPFBusca">Digite o CPF do Cliente:</label>
+        <input type="text" id="inputCPFBusca" name="cpf_cliente" required>
+        <button type="button" onclick="buscarDados()">Buscar</button>
+    </form>
+
+    <div id="formularioEdicao" style="display: none;"></div>
+
+    <script>
+        async function buscarDados() {
+            const cpf = document.getElementById('inputCPFBusca').value.trim();
+            if (cpf) {
+                try {
+                    const response = await fetch(`/alterardados/dados?cpf_cliente=${cpf}`);
+                    const data = await response.json();
+                    if (data.length > 0) {
+                        mostrarFormularioEdicao(data[0]);
+                    } else {
+                        alert('Dados não encontrados para este CPF.');
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar dados:', error);
+                    alert('Erro ao buscar dados. Por favor, tente novamente.');
+                }
+            }
+        }
+
+        function mostrarFormularioEdicao(item) {
+            const formularioEdicaoDiv = document.getElementById('formularioEdicao');
+            formularioEdicaoDiv.style.display = 'block';
+
+            formularioEdicaoDiv.innerHTML = `
+                <h2>Atualizar Cliente</h2>
+                <form id="formAtualizar" class="dados-form" onsubmit="atualizarDados(event)">
+                    <label>Nome: <input type="text" name="nome_sobrenome" value="${item.nome_sobrenome}"></label><br>
+                    <label>CPF: <input type="text" name="cpf_cliente" value="${item.cpf_cliente}" readonly></label><br>
+                    <label>Email: <input type="text" name="email_cliente" value="${item.email_cliente}"></label><br>
+                    <label>Data de Nascimento: <input type="text" name="data_nascimento" value="${item.data_nascimento}"></label><br>
+                    <label>Bairro: <input type="text" name="bairro_cliente" value="${item.bairro_cliente}"></label><br>
+                    <label>Rua: <input type="text" name="rua_cliente" value="${item.rua_cliente}"></label><br>
+                    <label>Número: <input type="text" name="numero_cliente" value="${item.numero_cliente}"></label><br>
+                    <label>Cidade: <input type="text" name="cidade_cliente" value="${item.cidade_cliente}"></label><br>
+                    <label>Estado: <input type="text" name="estado_cliente" value="${item.estado_cliente}"></label><br>
+                    <label>CEP: <input type="text" name="cep_cliente" value="${item.cep_cliente}"></label><br>
+                    <label>Nome de Usuário: <input type="text" name="nome_usuario" value="${item.nome_usuario}"></label><br>
+                    <label>Senha: <input type="text" name="senha_usuario" value="${item.senha_usuario}"></label><br>
+                    <label>Valor de Usuário: <input type="text" name="valor_usuario" value="${item.valor_usuario}"></label><br>
+                    <button type="submit">Salvar</button>
+                    <button type="button" onclick="limparFormulario()">Limpar</button>
+                </form>
+            `;
+        }
+
+        async function atualizarDados(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            console.log('Dados a serem enviados para atualização:', data);
+
+            try {
+                const response = await fetch('/alterardados/dados', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Dados atualizados com sucesso!');
+                } else {
+                    alert('Erro ao atualizar dados.');
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar dados:', error);
+                alert('Erro ao atualizar dados.');
+            }
+        }
+
+        function limparFormulario() {
+            document.getElementById('formAtualizar').reset();
+        }
+    </script>
+</body>
+</html>

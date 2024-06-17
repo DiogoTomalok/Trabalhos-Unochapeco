@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizar Endereço por CPF</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Visualizar Endereço por CPF</h1>
+    <form id="formBuscar">
+        <label for="inputCPF">Digite o CPF:</label>
+        <input type="text" id="inputCPF" name="cpf" required>
+        <button type="submit">Buscar</button>
+    </form>
+    <div id="enderecoContainer"></div>
+
+    <script>
+        document.getElementById('formBuscar').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const cpf = document.getElementById('inputCPF').value.trim();
+            if (cpf) {
+                try {
+                    const response = await fetch(`/buscar?cpf=${cpf}`);
+                    const data = await response.json();
+                    mostrarEndereco(data);
+                } catch (error) {
+                    console.error('Erro ao buscar endereço:', error);
+                }
+            }
+        });
+
+        function mostrarEndereco(enderecoData) {
+            const enderecoContainer = document.getElementById('enderecoContainer');
+            enderecoContainer.innerHTML = ''; // Limpa o conteúdo anterior
+            
+            if (enderecoData.length === 0) {
+                enderecoContainer.textContent = 'Endereço não encontrado para este CPF.';
+            } else {
+                const table = document.createElement('table');
+                const headerRow = table.insertRow();
+                const headers = ['Bairro', 'Rua', 'Número', 'Cidade', 'Estado', 'CEP'];
+                headers.forEach(headerText => {
+                    const header = document.createElement('th');
+                    header.textContent = headerText;
+                    headerRow.appendChild(header);
+                });
+
+                enderecoData.forEach(endereco => {
+                    const row = table.insertRow();
+                    const values = [endereco.bairro_cliente, endereco.rua_cliente, endereco.numero_cliente, endereco.cidade_cliente, endereco.estado_cliente, endereco.cep_cliente];
+                    values.forEach(value => {
+                        const cell = row.insertCell();
+                        cell.textContent = value;
+                    });
+                });
+
+                enderecoContainer.appendChild(table);
+            }
+        }
+    </script>
+</body>
+</html>
